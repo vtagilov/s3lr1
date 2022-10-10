@@ -27,6 +27,7 @@ class Item:
         print(" ID :", self.id, "\n\tТип: " + self.type + "\n\tНазвание: ", self.name)
 
 
+
 class People:
     def __init__(self, name="", items=None, people_id=-1):
         if items is None:
@@ -41,8 +42,7 @@ class People:
                 if (peopl.name != self.name):
                     break
                 self.name = input("Это имя уже занято. Попробуйте снова: ")
-            print("Человек успешно зарегистрирован\nНажмите Enter для продолжения.")
-            temp = input()
+            temp = input("Человек успешно зарегистрирован\nНажмите Enter для продолжения.")
         else:
             self.name = name
         self.items = []
@@ -73,7 +73,11 @@ class IO_manager:
         json.dump(data, open("file.json", "w"))
 
     def read_json():
-        data = json.load(open("file.json", "r"))
+        try:
+            data = json.load(open("file.json", "r"))
+        except FileNotFoundError:
+            print("Файл не найден.")
+            return
         for i in data["item"]:
             item_array.append(Item(i["type"], i["name"], i["people_id"]))
             if i["type"].lower not in item_types:
@@ -82,7 +86,11 @@ class IO_manager:
             people_array.append(People(i["name"], i["items"]))
 
     def read_xml():
-        root = ET.ElementTree(file='file.xml').getroot()
+        try:
+            root = ET.ElementTree(file='file.xml').getroot()
+        except FileNotFoundError:
+            print("Файл не найден.")
+            return -1
         for it in root[0]:
             item = Item(name=it[1].text, people_id=int(it[2].text), type=it[3].text)
             item_array.append(item)
@@ -118,11 +126,14 @@ def main():
     while True:
         ch = input("1\t-\tчтение из JSON\n2\t-\tчтение из XML\n")
         if(ch == "1"):
-            a.read_json()
+            if a.read_json() == -1:
+                return -1
             break
         if(ch == "2"):
-            a.read_xml()
+            if a.read_xml() == -1:
+                return -1
             break
+
     while True:
         print()
         ch = input("\n" * 10 + "0\t-\tОстановить программу\n1\t-\tДобавить предмет\n2\t-\tДобавить человека\n3\t-\tВывести "
@@ -185,40 +196,32 @@ def main():
                                 if (it.people_id == -1):
                                     people.items.append(it.id)
                                     it.people_id = people.id
-                                    print("Предмет успешно добавлен.\nНажмите Enter для продолжения.")
-                                    item = input()
+                                    item = input("Предмет успешно добавлен.\nНажмите Enter для продолжения.")
                                     break
                                 else:
-                                    print(
-                                        "Предмет уже пренадлежит кому-то, попробуйте его передать\nНажите Enter чтобы продолжить")
-                                    item = input()
+                                    item = input("Предмет уже пренадлежит кому-то, попробуйте его передать\nНажите Enter чтобы продолжить")
                                     break
-                            print("Неверный предмет. Попробуйте снова(0 - выход): ", end="")
-                            item = input()
+                            item = input("Неверный предмет. Попробуйте снова(0 - выход): ")
         if (ch == "5"):
-            print("Введите имя человека с предметом: ", end="")
-            name1 = input()
+            name1 = input("Введите имя человека с предметом: ")
             names_array = []
             for i in range(0, len(people_array)):
                 names_array.append(people_array[i].name)
             while name1 not in names_array and name1 != "0":
-                print("Такого человека не существует. Попробуйте снова(0 - выход): ", end="")
-                name1 = input()
+                name1 = input("Такого человека не существует. Попробуйте снова(0 - выход): ")
             if (name1 == "0"):
                 continue
-            print("Введите имя: ", end="")
-            name2 = input()
+            name2 = input("Введите имя: ")
             while name2 not in names_array and name2 != "0":
-                print("Такого человека не существует. Попробуйте снова(0 - выход): ", end="")
-                name2 = input()
+                name2 = input("Такого человека не существует. Попробуйте снова(0 - выход): ")
             if (name2 == "0"):
                 continue
             print("доступные предметы у", name1, ": ")
             for p1 in people_array:
                 if p1.name == name1:
                     p1.getitems()
-                    print("Введите id нужного предмета: ", end="")
-                    item_id = int(input())
+                    item_id = int(input("Введите id нужного предмета: "))
+
                     while item_id not in p1.items:
                         print("Такого предмета нет. Попробуйте еще раз: ", end="")
                         item_id = int(input())
