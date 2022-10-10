@@ -230,7 +230,6 @@ def main():
                             p2.items.append(item_id)
                             p1.items.remove(item_id)
                             temp = input("Предмет успешно передан\nНажмите Enter чтобы продолжить")
-
         a.write_json()
         a.write_xml()
 
